@@ -1,0 +1,23 @@
+{
+  "name": "card-deduction-tracker",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "2026-10-26-card-deduction-tracker: 남은 두 달, 체크카드로 바꿔야 할까 (카드 소득공제 계산기) + Gumroad Ping 기록",
+  "scripts": {
+    "dev": "vite",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "preview": "vite preview --port 4173 --strictPort",
+    "images": "node scripts/render-images.mjs",
+    "e2e": "node scripts/e2e-check.mjs",
+    "guide:pdf": "node scripts/build-guide-pdf.mjs"
+  },
+  "devDependencies": {
+    "marked": "18.1.1",
+    "typescript": "5.9.3",
+    "vite": "7.3.7",
+    "vitest": "5.0.5"
+  }
+}
