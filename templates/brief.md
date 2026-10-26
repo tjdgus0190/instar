@@ -2,7 +2,8 @@
 
 - slug:
 - 날짜:
-- 수익 패턴: A / B / C / D / E (`playbook/references.md`)
+- 상품 형태: 웹 / 크롬 확장 / 데스크톱 프로그램 / 스크립트·시트·템플릿 / 봇 — 선택 이유:
+- 수익 패턴: A / B / C / D / E / F / G (`playbook/references.md`)
 - CEO 승인 점수:
 
 ## 1. 한 줄 정의

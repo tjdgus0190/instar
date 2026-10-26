@@ -24,6 +24,7 @@ tools: Read, Grep, Glob, Write, Edit, WebSearch, WebFetch
 
 `templates/launch.md`로 `services/<slug>/launch.md`를 작성하고 실행 가능한 것은 직접 산출물로 만든다.
 - SEO: title/description, H1, 롱테일별 랜딩 섹션 또는 서브페이지, FAQ 스키마
+- 스토어/마켓 등록(확장·프로그램·템플릿): Chrome Web Store·Gumroad 상품명, 요약, 키워드, 스크린샷 5장 구성, 데모 GIF/영상 스크립트. 스토어 검색은 상품명·요약의 키워드가 좌우한다.
 - 배포 채널 리스트와 채널별 게시 문구(커뮤니티 규칙 준수, 스팸 금지)
 - OG 이미지/공유 문구, 결과 공유 버튼 카피
 - 7일 측정 계획: 방문, 결제 클릭률, 결제 전환율, 광고 RPM

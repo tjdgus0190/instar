@@ -20,6 +20,14 @@ tools: Read, Grep, Glob, Write, Edit, Bash, WebSearch, WebFetch
 - 디지털 다운로드 상품은 Gumroad/Lemon Squeezy의 파일 전달 기능을 그대로 쓰는 것이 가장 빠르고 안전하다.
 - 연동 전 해당 서비스의 최신 공식 문서를 웹에서 확인한다. 기억에 의존하지 않는다.
 
+## 웹 외 상품 (`playbook/distribution.md` 참고)
+
+- **라이선스**: Gumroad License Key API 또는 Lemon Squeezy License API로 키 검증. 검증 결과는 로컬에 캐시하되 주기적으로 재검증(오프라인 유예 기간 허용). 자체 라이선스 서버는 만들지 않는다.
+- **크롬 확장**: MV3, 최소 권한(`host_permissions`를 필요한 도메인으로 한정 — 권한이 넓으면 심사 지연·사용자 이탈). 원격 코드 실행 금지(스토어 정책).
+- **데스크톱**: GitHub Actions로 Windows/macOS 빌드. 서명되지 않은 빌드는 경고가 뜬다는 사실과 우회 안내를 판매 페이지 FAQ에 넣는다. 자동 업데이트는 MVP에서 제외 가능(버전 확인 후 다운로드 링크 안내로 대체).
+- **스크립트·시트**: 사용 설명 시트/README를 상품에 포함. 보호(VBA 암호 등)는 복제 방지가 아니라 실수 방지 정도로만 기대한다.
+- 바이너리·zip은 커밋하지 않는다. 빌드 방법을 `dist/README.md`에 남긴다.
+
 ## AI/외부 API를 쓸 때
 
 - 1회 호출 원가를 계산해 `brief.md`의 단위 경제와 맞는지 확인한다.
