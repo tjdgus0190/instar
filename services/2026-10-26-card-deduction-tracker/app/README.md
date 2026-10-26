@@ -55,7 +55,7 @@ BASE_URL=http://localhost:4174 EXPECT_GUMROAD=1 node scripts/e2e-check.mjs
 | `VITE_CF_BEACON_TOKEN` | Pages 빌드 변수 | 선택 | Cloudflare Web Analytics 토큰. **page_view만**(맞춤 이벤트 미지원) → 결제 클릭 측정에는 GA4 필요 |
 | `NODE_VERSION` | Pages 빌드 변수 | 선택 | `.node-version`(22)이 있어 보통 불필요 |
 | `GUMROAD_SELLER_ID` | Pages **Secret** (Production) | 필수 | Ping의 `seller_id`와 대조 |
-| `GUMROAD_PING_TOKEN` | Pages **Secret** (Production) | 강력 권장 | Ping URL `?token=` 값과 대조. Gumroad Ping은 서명이 없어 seller_id만으로는 위조를 완전히 막지 못한다. 32자 이상 무작위 문자열 |
+| `GUMROAD_PING_TOKEN` | Pages **Secret** (Production) | 필수 | Ping URL `?token=` 값과 대조. Gumroad Ping은 서명이 없고 seller_id는 비밀값이 아니므로 필수(미설정 시 503, fail-closed). 32자 이상 무작위 문자열 |
 | `SALES` | Pages KV 바인딩 | 필수 | Ping 기록 저장소 |
 
 `VITE_*`·`SITE_URL`·`CONTACT_EMAIL`은 빌드 시 정적 파일에 박히므로 값을 바꾸면 **재배포**해야 한다. 실제 값은 커밋하지 않는다(`.env.example`만 커밋).
@@ -74,6 +74,8 @@ BASE_URL=http://localhost:4174 EXPECT_GUMROAD=1 node scripts/e2e-check.mjs
 5. 재배포 후 확인: `/`, `/2027-card-deduction-changes`, `/privacy`, `/terms`, `/refund`, `/disclaimer`, `/sitemap.xml`, `/robots.txt`, `/og.png`, 없는 경로 → 404 페이지.
 6. 도메인 확정 후 OG 이미지 우하단 도메인 표기: `SITE_URL=https://<도메인> PRETENDARD_DIR=<woff2 폴더> npm run images` → `public/*.png` 커밋.
 
+보안 헤더: `public/_headers`에 CSP 포함(허용: self, GA4 `*.googletagmanager.com`/`*.google-analytics.com`/`*.analytics.google.com`, Cloudflare beacon, jsDelivr 글꼴). 새 외부 스크립트·도메인을 추가하면 CSP도 같이 고친다. 로컬 Playwright에서 헤더를 주입해 위반 0건 확인함(실배포 적용은 미확인).
+
 CLI로 직접 올릴 경우(대안): `npm run build && npx wrangler pages deploy build --project-name <프로젝트>` — 이 경우에도 `functions/`는 현재 폴더 기준으로 함께 배포된다. KV·Secret은 대시보드에서 설정.
 
 ## Gumroad 상품 설정 (운영자)
@@ -82,7 +84,7 @@ CLI로 직접 올릴 경우(대안): `npm run build && npx wrangler pages deploy
 2. 상품 등록: 이름 "2027 가계부 + 카드공제 트래커 (구글 시트)", $6.99, 파일 = 사용 설명 PDF(`sheet/out/guide.pdf`), 설명 하단에 F-1·F-2·F-3 원문(design 3-4).
 3. **Ping URL**: Settings → Advanced → Ping endpoint
    `https://<도메인>/api/gumroad-ping?token=<GUMROAD_PING_TOKEN 값>`
-4. seller_id 확인: `GUMROAD_SELLER_ID`에 임시 값(예: `unset`)을 넣고 배포 → 본인 테스트 구매(또는 100% 할인 코드) → Pages 프로젝트 → Deployments → 해당 배포 → **Functions 실시간 로그**(또는 `npx wrangler pages deployment tail`)에 `seller_id mismatch, not recorded (received=…)`가 찍힌다 → 그 값을 `GUMROAD_SELLER_ID` Secret에 넣고 재배포 → 다시 테스트 구매해 200·KV 기록 확인. (403 응답은 Gumroad가 재시도하지 않으므로 첫 테스트 구매 기록은 남지 않는다.)
+4. seller_id 확인: `GUMROAD_PING_TOKEN`(실제 값)과 `GUMROAD_SELLER_ID` 임시 값(예: `unset`)을 넣고 배포 → 본인 테스트 구매(또는 100% 할인 코드) → Pages 프로젝트 → Deployments → 해당 배포 → **Functions 실시간 로그**(또는 `npx wrangler pages deployment tail`)에 `seller_id mismatch, not recorded (received=…)`가 찍힌다 → 그 값을 `GUMROAD_SELLER_ID` Secret에 넣고 재배포 → 다시 테스트 구매해 200·KV 기록 확인. (403 응답은 Gumroad가 재시도하지 않으므로 첫 테스트 구매 기록은 남지 않는다.)
 5. 기록 확인: `npx wrangler kv key list --namespace-id <ID>` → `sale:<sale_id>:sale` 키, 값 예시
    `{"sale_id":"…","resource_name":"sale","price_cents":699,"test":true,"utm_source":"geeknews",…}`
 
@@ -91,17 +93,17 @@ CLI로 직접 올릴 경우(대안): `npm run build && npx wrangler pages deploy
 - POST, `application/x-www-form-urlencoded`. 2xx면 수신 확인(본문은 읽지 않음). 5초 안에 응답.
 - 재시도는 499·500·502·503·504 응답에만(1분·3분·10분·1시간 후). 그 외 non-2xx는 재시도하지 않는다.
 - at-least-once 전달 → `sale_id` + `resource_name`(sale/refund)으로 중복 제거. 환불 Ping은 같은 sale_id에 `resource_name=refund`.
-- 페이로드 서명 없음 → 이 함수는 `?token=` + `seller_id` 두 겹으로 검증한다.
+- 페이로드 서명 없음 → 이 함수는 `?token=` + `seller_id` 두 겹으로 검증한다(둘 다 필수).
 
 | 상황 | 응답 | 기록 |
 |---|---|---|
 | 정상 | 200 | `sale:<sale_id>:<resource_name>` ← sale_id, resource_name, product_permalink, price_cents, currency, quantity, sale_timestamp, test, refunded, utm_source/medium/campaign, received_at |
 | token 불일치 / seller_id 불일치·누락 | 403 (재시도 안 됨) | 없음 |
-| `GUMROAD_SELLER_ID` 또는 `SALES` 미설정 | 503 (Gumroad가 재시도 → 설정 고치면 복구) | 없음 |
+| `GUMROAD_SELLER_ID`·`GUMROAD_PING_TOKEN`·`SALES` 중 하나라도 미설정 | 503 (Gumroad가 재시도 → 설정 고치면 복구) | 없음 |
 | KV 쓰기 실패 | 500 (재시도) | 없음 |
 | sale_id 형식 오류 | 400 | 없음 |
 
-이메일·이름·구매자 ID·IP 국가·카드·라이선스·커스텀 필드는 **저장하지 않는다**. 이 기록은 매출 측정용이며, 유료 파일 전달은 Gumroad가 한다(이 기록으로 잠금 해제하는 기능 없음).
+Ping 본문에는 이메일·이름·구매자 ID·IP 국가·카드 요약 등이 포함되어 서버로 전송되지만 **저장하지 않는다**(`/privacy`에 고지). 이 기록은 매출 측정용이며, 유료 파일 전달은 Gumroad가 한다(이 기록으로 잠금 해제하는 기능 없음).
 
 ## 유료 구글 시트 생성·검증·업로드
 

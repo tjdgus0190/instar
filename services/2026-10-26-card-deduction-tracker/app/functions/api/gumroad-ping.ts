@@ -7,8 +7,9 @@
  * - 재시도는 499/500/502/503/504 응답에만(1분·3분·10분·1시간 후). 그 외 non-2xx는 재시도 안 함.
  * - 5초 안에 응답해야 함. 페이로드는 서명이 없다.
  *
- * 검증: (1) GUMROAD_PING_TOKEN이 설정돼 있으면 URL ?token= 일치 필수, (2) seller_id === GUMROAD_SELLER_ID.
- * 불일치 → 403 (기록 안 함, Gumroad도 재시도 안 함). 설정 누락 → 503 (설정 고친 뒤 재시도로 복구 가능).
+ * 검증(둘 다 필수): (1) URL ?token= === GUMROAD_PING_TOKEN, (2) seller_id === GUMROAD_SELLER_ID.
+ * 불일치 → 403 (기록 안 함, Gumroad도 재시도 안 함).
+ * 설정 누락(GUMROAD_SELLER_ID·GUMROAD_PING_TOKEN·SALES 중 하나라도) → 503 (fail-closed, 설정 고친 뒤 Gumroad 재시도로 복구 가능).
  * 저장: KV(SALES)에 key `sale:<sale_id>:<resource_name>` → 최소 정보만. 이메일·이름·구매자 ID·IP 국가·카드 정보 등 개인정보는 저장하지 않는다.
  *
  * 이 기록은 매출 측정용(`purchase`)이다. 유료 파일 전달은 Gumroad가 하며, 이 기록으로 무언가를 잠금 해제하지 않는다.
@@ -102,16 +103,14 @@ export async function onRequest({ request, env }: Ctx): Promise<Response> {
   if (request.method !== 'POST') {
     return new Response('Method Not Allowed', { status: 405, headers: { allow: 'POST' } });
   }
-  if (!env.GUMROAD_SELLER_ID || !env.SALES) {
-    console.error('gumroad-ping: GUMROAD_SELLER_ID or SALES binding missing');
+  if (!env.GUMROAD_SELLER_ID || !env.GUMROAD_PING_TOKEN || !env.SALES) {
+    console.error('gumroad-ping: GUMROAD_SELLER_ID, GUMROAD_PING_TOKEN or SALES binding missing');
     return text('not configured', 503);
   }
-  if (env.GUMROAD_PING_TOKEN) {
-    const token = new URL(request.url).searchParams.get('token') ?? '';
-    if (!safeEqual(token, env.GUMROAD_PING_TOKEN)) {
-      console.warn('gumroad-ping: token mismatch, not recorded');
-      return text('forbidden', 403);
-    }
+  const token = new URL(request.url).searchParams.get('token') ?? '';
+  if (!safeEqual(token, env.GUMROAD_PING_TOKEN)) {
+    console.warn('gumroad-ping: token mismatch, not recorded');
+    return text('forbidden', 403);
   }
   const len = Number(request.headers.get('content-length') ?? '0');
   if (len > MAX_BODY) return text('payload too large', 413);

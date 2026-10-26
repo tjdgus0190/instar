@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { basicLimit, calculate, copyText, deduction, manLabel, ruleSentence } from '../src/calc';
+import {
+  basicLimit,
+  calculate,
+  copyText,
+  deduction,
+  manLabel,
+  ruleSentence,
+  ZERO_DIFF_AT_THRESHOLD,
+  ZERO_DIFF_DEFAULT,
+  ZERO_DIFF_NO_SPEND,
+} from '../src/calc';
 
 // brief.md 부록 C 검증 케이스 (원 단위 일치)
 describe('부록 C 케이스 1 — 문턱 통과, 전환 이득', () => {
@@ -118,5 +128,31 @@ describe('보조 규칙', () => {
     expect(manLabel(125_000_000)).toBe('= 1억 2,500만원');
     expect(manLabel(200_000_000)).toBe('= 2억원');
     expect(manLabel(200_000_001)).toBe('= 약 2억원');
+  });
+});
+
+describe('zero_diff 상황별 문구 (qa.md m4)', () => {
+  it('X = 0 (QA 재현: G=30,000,000, T=10,000,000) → 남은 지출 입력 안내', () => {
+    const r = calculate({ G: 30_000_000, C: 0, D: 0, X: 0, T: 10_000_000, K: 0 });
+    expect(r.resultType).toBe('zero_diff');
+    expect(r.A).toBe(1_000_000);
+    expect(ruleSentence(r, 0)).toBe(ZERO_DIFF_NO_SPEND);
+  });
+  it('합계가 정확히 문턱(공제 0원, X > 0) → 문턱에 겨우 닿는 문구', () => {
+    // M = 12,500,000 = 8,000,000 + 2,000,000 + X 2,500,000
+    const r = calculate({ G: 50_000_000, C: 8_000_000, D: 2_000_000, X: 2_500_000, T: 0, K: 0 });
+    expect(r.resultType).toBe('zero_diff');
+    expect(r.remainingAfter).toBe(0);
+    expect(r.A).toBe(0);
+    expect(r.B).toBe(0);
+    expect(ruleSentence(r, 2_500_000)).toBe(ZERO_DIFF_AT_THRESHOLD);
+  });
+  it('케이스 2는 기존 문구 유지', () => {
+    const r = calculate({ G: 40_000_000, C: 6_000_000, D: 1_000_000, T: 500_000, K: 0, X: 3_000_000 });
+    expect(ruleSentence(r, 3_000_000)).toBe(ZERO_DIFF_DEFAULT);
+  });
+  it('케이스 4(X = 0, 한도 도달)는 rule2 유지', () => {
+    const r = calculate({ G: 70_000_000, C: 40_000_000, D: 0, T: 0, K: 0, X: 0 });
+    expect(r.resultType).toBe('rule2');
   });
 });

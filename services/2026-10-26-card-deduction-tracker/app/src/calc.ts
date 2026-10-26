@@ -162,6 +162,12 @@ export function roundMan(n: number): number {
   return Math.round(n / 10_000);
 }
 
+export const ZERO_DIFF_DEFAULT = '남은 지출은 대부분 25% 문턱을 채우는 데 쓰여 결제수단에 따른 차이가 없습니다.';
+/** X = 0: 비교할 남은 지출이 없음 */
+export const ZERO_DIFF_NO_SPEND = '11~12월 예상 지출이 0원이라 비교할 남은 지출이 없어요. 남은 지출을 입력하면 결제수단별 차이를 계산해 드려요.';
+/** X > 0인데 두 경우 모두 공제 0원: 남은 지출을 다 써야 문턱에 겨우 닿는 경우 */
+export const ZERO_DIFF_AT_THRESHOLD = '11~12월 지출까지 써야 25% 문턱에 겨우 닿아 어느 쪽으로 써도 공제가 0원이에요. 문턱을 넘는 지출부터 결제수단에 따라 공제가 달라집니다.';
+
 export function ruleSentence(r: CalcResult, X: number): string {
   switch (r.resultType) {
     case 'rule1':
@@ -169,7 +175,10 @@ export function ruleSentence(r: CalcResult, X: number): string {
     case 'rule2':
       return '이미 공제 한도에 도달해 체크카드로 바꿔도 공제액이 같습니다. 혜택 좋은 신용카드를 쓰세요.';
     case 'zero_diff':
-      return '남은 지출은 대부분 25% 문턱을 채우는 데 쓰여 결제수단에 따른 차이가 없습니다.';
+      // brief B-3 규칙 2-1의 상황별 문구 (qa.md m4): 결과 유형은 그대로 zero_diff
+      if (X === 0) return ZERO_DIFF_NO_SPEND;
+      if (r.A === 0) return ZERO_DIFF_AT_THRESHOLD;
+      return ZERO_DIFF_DEFAULT;
     case 'rule3':
       return `남은 ${won(X)}을 체크카드·현금영수증으로 쓰면 소득공제가 ${won(r.diff)} 늘어납니다 (신용 ${won(r.A)} → 체크 ${won(r.B)}).`;
   }

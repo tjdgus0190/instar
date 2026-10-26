@@ -33,6 +33,10 @@ const CASES = {
        sentence: '이미 공제 한도에 도달해 체크카드로 바꿔도 공제액이 같습니다. 혜택 좋은 신용카드를 쓰세요.', hero: '3,000,000원', type: 'rule2' },
   '4-G+1': { in: { g: '70000001', c: '40000000', d: '0', x: '0' }, k: 0,
        sentence: '이미 공제 한도에 도달해 체크카드로 바꿔도 공제액이 같습니다. 혜택 좋은 신용카드를 쓰세요.', hero: '2,500,000원', type: 'rule2' },
+  'm4-X0': { in: { g: '30000000', c: '0', d: '0', x: '0', t: '10000000' }, k: 0,
+       sentence: '11~12월 예상 지출이 0원이라 비교할 남은 지출이 없어요. 남은 지출을 입력하면 결제수단별 차이를 계산해 드려요.', hero: '0원', type: 'zero_diff' },
+  'm4-문턱': { in: { g: '50000000', c: '8000000', d: '2000000', x: '2500000' }, k: 0,
+       sentence: '11~12월 지출까지 써야 25% 문턱에 겨우 닿아 어느 쪽으로 써도 공제가 0원이에요. 문턱을 넘는 지출부터 결제수단에 따라 공제가 달라집니다.', hero: '0원', type: 'zero_diff' },
 };
 
 const SECRET_STRINGS = (c) => {
@@ -147,7 +151,7 @@ const browser = await chromium.launch();
 }
 
 // ---------- 데스크톱: 케이스 2~4 원 단위 ----------
-for (const id of ['2', '3', '3-K0', '4', '4-G+1']) {
+for (const id of ['2', '3', '3-K0', '4', '4-G+1', 'm4-X0', 'm4-문턱']) {
   const c = CASES[id];
   const { ctx, page } = await newPage(browser, false);
   await page.goto(BASE + '/', { waitUntil: 'load' });
@@ -203,7 +207,7 @@ for (const id of ['2', '3', '3-K0', '4', '4-G+1']) {
     return { ld: ld.mainEntity.map((m) => ({ q: m.name, a: m.acceptedAnswer.text })), vis };
   });
   check('FAQ JSON-LD = 화면 FAQ (7개)', faq.ld.length === 7 && JSON.stringify(faq.ld) === JSON.stringify(faq.vis));
-  for (const p of ['/', '/2027-card-deduction-changes']) {
+  for (const p of ['/', '/2027-card-deduction-changes', '/privacy', '/terms', '/refund', '/disclaimer']) {
     await page.goto(BASE + p, { waitUntil: 'load' });
     const body = await page.evaluate(() => document.body.innerText);
     const bad = body.match(/(?<!미)확정|사라진다|폐지 확정/g);

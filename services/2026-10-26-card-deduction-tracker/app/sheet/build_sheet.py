@@ -27,6 +27,7 @@ import sys
 from pathlib import Path
 
 from openpyxl import Workbook
+from openpyxl.comments import Comment
 from openpyxl.formatting.rule import FormulaRule
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
@@ -212,17 +213,27 @@ def build_settings(ws):
     cf_fill(ws, "D8:D22", "$C$5=1", "scenario")
     cf_fill(ws, "C8:C22", "$C$5=0", "key")
 
-    put(ws, "A24", "출처 (brief.md 부록 A, 확인일 2026-10-26)", "plain")
+    put(ws, "A24", "출처 (확인일 2026-10-26) — A1: 현행 규칙(현행 법령) / A2: 정부 개정안(국회 미통과·미확정)", "plain")
     ws["A24"].font = Font(bold=True, size=10)
     for col, h in zip("ABCDE", ["번호", "항목", "값", "출처 URL", "확인일"]):
         put(ws, f"{col}25", h, "header")
-    for i, (num, item, val, url) in enumerate(SOURCES):
-        r = 26 + i
+    r = 26
+    section = None
+    for num, item, val, url in SOURCES:
+        sec = num.split("-")[0]
+        if sec != section:
+            section = sec
+            label = ("A1 현행 규칙 — 2026년 사용분, '2026마무리' 탭과 '2027공제' 탭 기본값" if sec == "A1"
+                     else "A2 정부 개정안(국회 미통과·미확정) — '설정' C4 시나리오를 켰을 때만 사용, 아래는 모두 미확정 내용")
+            ws.merge_cells(f"A{r}:E{r}")
+            put(ws, f"A{r}", label, "key" if sec == "A1" else "scenario")
+            r += 1
         put(ws, f"A{r}", num, "calc")
         put(ws, f"B{r}", item, "calc", wrap=True)
         put(ws, f"C{r}", val, "calc", wrap=True)
         put(ws, f"D{r}", url, "calc", wrap=True)  # 텍스트(HYPERLINK 미사용)
         put(ws, f"E{r}", "2026-10-26", "calc")
+        r += 1
     widths(ws, {"A": 14, "B": 46, "C": 22, "D": 22, "E": 18, "F": 8, "G": 14})
 
 
@@ -286,7 +297,9 @@ def build_2026(ws):
         '=IF(C5="","노란 칸을 채우면 결과가 나옵니다.",'
         'IF(C17>0,"11~12월 지출을 다 써도 25% 문턱에 "&TEXT(C17,"#,##0")&"원 못 미칩니다. 문턱 아래 지출은 결제수단과 상관없이 공제가 없어요.",'
         'IF(AND(C22=0,C20>=C18),"이미 공제 한도에 도달해 체크카드로 바꿔도 공제액이 같습니다. 혜택 좋은 신용카드를 쓰세요.",'
-        'IF(C22=0,"남은 지출은 대부분 25% 문턱을 채우는 데 쓰여 결제수단에 따른 차이가 없습니다.",'
+        'IF(C22=0,IF(C12=0,"11~12월 예상 지출이 0원이라 비교할 남은 지출이 없어요. 남은 지출을 입력하면 결제수단별 차이를 계산해 드려요.",'
+        'IF(C20=0,"11~12월 지출까지 써야 25% 문턱에 겨우 닿아 어느 쪽으로 써도 공제가 0원이에요. 문턱을 넘는 지출부터 결제수단에 따라 공제가 달라집니다.",'
+        '"남은 지출은 대부분 25% 문턱을 채우는 데 쓰여 결제수단에 따른 차이가 없습니다.")),'
         '"남은 "&TEXT(C12,"#,##0")&"원을 체크카드·현금영수증으로 쓰면 소득공제가 "&TEXT(C22,"#,##0")&"원 늘어납니다 (신용 "&TEXT(C20,"#,##0")&"원 → 체크 "&TEXT(C21,"#,##0")&"원)."))))'
     )
     put(ws, "C23", result_formula, "key", wrap=True)
@@ -375,6 +388,9 @@ def build_monthly(ws):
     put(ws, "A2", "2027 월별 결제수단 누적 — 자동 계산", "title")
     put(ws, "N2", "2027 문턱(25%)", "plain")
     put(ws, "O2", f"={DED}$C$17", "calc", MONEY)
+    # '2027공제' C32와 같은 기준: 문화체육은 (상한 0=제한 없음) 또는 (총급여 <= 상한)일 때만 공제 대상 누적에 포함
+    put(ws, "N3", "문화체육 포함(1/0)", "plain")
+    put(ws, "O3", f"=IF(OR({S}$E$14=0,{DED}$C$5<={S}$E$14),1,0)", "calc", "0")
     heads = ["월", "수입", "지출 합계", "신용카드", "체크·현금영수증", "전통시장", "대중교통(신용)", "대중교통(체크)", "문화체육",
              "현금(영수증 없음)", "공제 제외", "공제 대상 누적", "25% 문턱 진행률", "진행 막대"]
     for i, h in enumerate(heads):
@@ -392,7 +408,7 @@ def build_monthly(ws):
         put(ws, f"C{r}", f'=SUMIFS({F},{B},$A{r},{C},"지출")', "calc", MONEY)
         for col, method in method_cols.items():
             put(ws, f"{col}{r}", f'=SUMIFS({F},{B},$A{r},{C},"지출",{E},"{method}")', "calc", MONEY)
-        put(ws, f"L{r}", f"=SUM($D$5:$I{r})", "calc", MONEY)
+        put(ws, f"L{r}", f"=SUM($D$5:$H{r})+IF($O$3=1,SUM($I$5:$I{r}),0)", "calc", MONEY)
         put(ws, f"M{r}", f'=IF($O$2=0,"",MIN(1,L{r}/$O$2))', "calc", PCT)
         put(ws, f"N{r}", f'=IF(M{r}="","",REPT("■",ROUNDDOWN(M{r}*10,0))&REPT("□",10-ROUNDDOWN(M{r}*10,0)))', "calc")
     put(ws, "A17", "합계", "key")
@@ -402,6 +418,10 @@ def build_monthly(ws):
     put(ws, "M17", "=M16", "key", PCT)
     put(ws, "N17", "=N16", "key")
     cf_fill(ws, "M5:M16", "AND($O$2>0,M5>=1)", "key")
+    ws["L4"].comment = Comment(
+        "공제 대상 누적 = 신용+체크·현금+전통시장+대중교통(신용·체크) + 문화체육(O3=1일 때만). "
+        "총급여 7천만원 초과(현행 규칙)면 문화체육은 별도 공제 대상이 아니라 빠집니다('2027공제' 탭과 같은 기준). "
+        "현금(영수증 없음)·공제 제외는 포함하지 않습니다.", "카드공제 트래커")
     ws.freeze_panes = "B5"
     w = {"A": 6, "M": 10, "N": 14, "O": 14}
     w.update({c: 13 for c in "BCDEFGHIJKL"})

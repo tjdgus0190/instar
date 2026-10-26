@@ -108,7 +108,7 @@
   - CLI 대안: `cd services/2026-10-26-card-deduction-tracker/app && npm ci && npm test && npm run build && npx wrangler pages deploy build --project-name <프로젝트>`
 - 필요한 환경변수
   - 빌드 변수: `SITE_URL`(필수, 운영 도메인), `VITE_GUMROAD_URL`(필수, 미설정 시 구매 버튼 비활성화), `CONTACT_EMAIL`(필수), `VITE_GA4_ID`(권장 — `calc_complete`·`checkout_click`은 GA4에서만 기록), `VITE_CF_BEACON_TOKEN`(선택, page_view만)
-  - Functions Secret: `GUMROAD_SELLER_ID`(필수), `GUMROAD_PING_TOKEN`(강력 권장, Ping URL `?token=`과 대조 — Gumroad Ping은 서명 없음)
+  - Functions Secret: `GUMROAD_SELLER_ID`(필수), `GUMROAD_PING_TOKEN`(필수, Ping URL `?token=`과 대조 — Gumroad Ping은 서명 없음, 미설정 시 503)
   - KV 바인딩: `SALES`(필수, 기존 `PURCHASE_LOG` 명칭 대체) — 키 `sale:<sale_id>:<sale|refund>`, 가격·시각·UTM만 저장(이메일 등 개인정보 미저장)
 - Gumroad Ping URL: `https://<도메인>/api/gumroad-ping?token=<GUMROAD_PING_TOKEN>`
 - 유료 시트: `python3 app/sheet/build_sheet.py`로 xlsx 생성(커밋 안 함) → 구글 드라이브 업로드·변환 → `/copy` 링크 → `npm run guide:pdf`로 설명 PDF 생성 → Gumroad 업로드
