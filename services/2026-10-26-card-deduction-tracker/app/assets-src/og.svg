@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#0E4A37"/>
+  <!-- 오른쪽 위 장식: 카드 실루엣 (저채도) -->
+  <g transform="translate(900 70) rotate(-8)" opacity="0.18">
+    <rect width="240" height="150" rx="18" fill="#4CC79A"/>
+    <rect x="24" y="36" width="44" height="32" rx="6" fill="#0E4A37"/>
+  </g>
+  <rect x="64" y="64" width="300" height="52" rx="26" fill="#0B6E4F"/>
+  <text x="214" y="99" text-anchor="middle" font-family="Pretendard, sans-serif" font-size="28" font-weight="700" fill="#CFF3E2">2026 카드 소득공제</text>
+  <text x="64" y="230" font-family="Pretendard, sans-serif" font-size="76" font-weight="800" fill="#FFFFFF" letter-spacing="-1.5">남은 두 달,</text>
+  <text x="64" y="320" font-family="Pretendard, sans-serif" font-size="76" font-weight="800" fill="#FFFFFF" letter-spacing="-1.5">체크카드로 바꿔야 할까?</text>
+  <text x="64" y="408" font-family="Pretendard, sans-serif" font-size="26" font-weight="600" fill="#CFE3DA">신용카드로</text>
+  <rect x="220" y="384" width="420" height="36" rx="8" fill="#7C8783"/>
+  <text x="64" y="468" font-family="Pretendard, sans-serif" font-size="26" font-weight="600" fill="#CFE3DA">체크카드로</text>
+  <rect x="220" y="444" width="600" height="36" rx="8" fill="#4CC79A"/>
+  <text x="840" y="471" font-family="Pretendard, sans-serif" font-size="28" font-weight="800" fill="#4CC79A">+ 공제 차이</text>
+  <rect x="64" y="530" width="1072" height="1" fill="#2E6B57"/>
+  <text x="64" y="580" font-family="Pretendard, sans-serif" font-size="26" font-weight="400" fill="#CFE3DA">25% 문턱·한도 30초 계산 · 입력값 서버 전송 없음</text>
+  <text x="1136" y="580" text-anchor="end" font-family="Pretendard, sans-serif" font-size="26" font-weight="700" fill="#FFFFFF">{{DOMAIN}}</text>
+</svg>

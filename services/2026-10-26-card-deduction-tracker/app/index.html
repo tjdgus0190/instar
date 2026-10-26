@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <!-- @include head -->
+    <title>신용카드 소득공제 계산기 2026 — 남은 두 달 체크카드로 바꿔야 할까</title>
+    <meta name="description" content="총급여와 지금까지 쓴 카드 금액만 넣으면 11~12월 지출을 신용카드로 쓸 때와 체크카드로 쓸 때 소득공제 차이, 25% 문턱까지 남은 금액을 30초 만에 계산합니다. 입력값은 서버로 보내지 않습니다.">
+    <link rel="canonical" href="{{SITE_URL}}/">
+    <meta property="og:url" content="{{SITE_URL}}/">
+    <meta property="og:title" content="남은 두 달, 체크카드로 바꿔야 할까? — 2026 카드 소득공제 30초 계산">
+    <meta property="og:description" content="25% 문턱까지 남은 금액과 신용/체크 공제 차이를 바로 확인하세요. 회원가입 없음.">
+    <meta property="og:image" content="{{SITE_URL}}/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <!-- @include faq-jsonld -->
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body>
+    <!-- @include notice -->
+    <main class="wrap">
+      <section class="hero">
+        <h1>남은 두 달,<br class="m-only"> 체크카드로 바꿔야 할까?<span class="h1-sub">(2026 카드 소득공제)</span></h1>
+        <p class="sub">총급여와 지금까지 쓴 카드 금액만 넣으면, 11~12월 지출을 신용카드로 쓸 때와 체크카드로 쓸 때 소득공제 차이를 30초 만에 보여 드려요.</p>
+        <p class="trust">
+          <svg class="ico" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><rect x="4" y="9" width="12" height="8.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+          입력값은 이 브라우저 안에서만 계산 · 회원가입 없음
+        </p>
+      </section>
+
+      <noscript><p class="noscript">이 계산기는 자바스크립트가 필요해요. 입력값은 서버로 보내지 않고 브라우저에서만 계산합니다.</p></noscript>
+
+      <form id="calc-form" class="calc" novalidate autocomplete="off" action="javascript:void(0)">
+        <div class="field">
+          <label for="in-g">올해 총급여 <span class="badge">필수</span></label>
+          <div class="money">
+            <input id="in-g" type="text" inputmode="numeric" pattern="[0-9,]*" autocomplete="off" enterkeyhint="next" maxlength="14" placeholder="예: 50,000,000" aria-describedby="in-g-man in-g-help in-g-err">
+            <span class="money-unit" aria-hidden="true">원</span>
+          </div>
+          <p id="in-g-man" class="man" aria-live="off"></p>
+          <p id="in-g-help" class="help">연봉에서 식대 등 비과세 수당을 뺀 금액이에요. 모르면 연봉을 넣으세요.</p>
+          <p id="in-g-err" class="err" hidden></p>
+        </div>
+
+        <div class="field">
+          <label for="in-c">지금까지 쓴 신용카드 <span class="badge">필수</span></label>
+          <div class="money">
+            <input id="in-c" type="text" inputmode="numeric" pattern="[0-9,]*" autocomplete="off" enterkeyhint="next" maxlength="14" placeholder="예: 12,000,000" aria-describedby="in-c-man in-c-help in-c-err">
+            <span class="money-unit" aria-hidden="true">원</span>
+          </div>
+          <p id="in-c-man" class="man" aria-live="off"></p>
+          <p id="in-c-help" class="help">홈택스 '연말정산 미리보기'의 1~9월 신용카드 금액 + 10월 사용분. 전통시장·대중교통은 빼고 넣으세요. <a href="#faq-hometax" class="faq-jump" data-faq="faq-hometax">숫자 찾는 법 ›</a></p>
+          <p id="in-c-err" class="err" hidden></p>
+        </div>
+
+        <div class="field">
+          <label for="in-d">지금까지 쓴 체크카드 + 현금영수증 <span class="badge">필수</span></label>
+          <div class="money">
+            <input id="in-d" type="text" inputmode="numeric" pattern="[0-9,]*" autocomplete="off" enterkeyhint="next" maxlength="14" placeholder="예: 3,000,000" aria-describedby="in-d-man in-d-help in-d-err">
+            <span class="money-unit" aria-hidden="true">원</span>
+          </div>
+          <p id="in-d-man" class="man" aria-live="off"></p>
+          <p id="in-d-help" class="help">같은 기준(1~10월, 전통시장·대중교통 제외)이에요.</p>
+          <p id="in-d-err" class="err" hidden></p>
+        </div>
+
+        <div class="field">
+          <label for="in-x">11~12월 예상 지출 <span class="badge">필수</span></label>
+          <div class="money">
+            <input id="in-x" type="text" inputmode="numeric" pattern="[0-9,]*" autocomplete="off" enterkeyhint="done" maxlength="14" placeholder="예: 4,000,000" aria-describedby="in-x-man in-x-help in-x-err">
+            <span class="money-unit" aria-hidden="true">원</span>
+          </div>
+          <p id="in-x-man" class="man" aria-live="off"></p>
+          <p id="in-x-help" class="help">두 달 동안 카드·현금영수증으로 쓸 일반 지출이에요. 세금·관리비·통신비처럼 공제 안 되는 지출은 빼세요.</p>
+          <p id="in-x-err" class="err" hidden></p>
+        </div>
+
+        <details class="optional" id="optional">
+          <summary>전통시장·대중교통, 자녀가 있다면 (선택)<span class="opt-filled" hidden> · 입력됨</span></summary>
+          <div class="optional-body">
+            <div class="field">
+              <label for="in-t">지금까지 쓴 전통시장 + 대중교통 <span class="badge">선택</span></label>
+              <div class="money">
+                <input id="in-t" type="text" inputmode="numeric" pattern="[0-9,]*" autocomplete="off" enterkeyhint="done" maxlength="14" placeholder="0" aria-describedby="in-t-man in-t-help in-t-err">
+                <span class="money-unit" aria-hidden="true">원</span>
+              </div>
+              <p id="in-t-man" class="man" aria-live="off"></p>
+              <p id="in-t-help" class="help">결제수단 상관없이 합계예요. 없으면 비워 두세요.</p>
+              <p id="in-t-err" class="err" hidden></p>
+            </div>
+
+            <fieldset class="field seg-field">
+              <legend>20세 이하 자녀·손자녀 <span class="badge">선택</span></legend>
+              <div class="seg" role="radiogroup">
+                <label><input type="radio" name="in-k" id="in-k" value="0" checked><span>0명</span></label>
+                <label><input type="radio" name="in-k" value="1"><span>1명</span></label>
+                <label><input type="radio" name="in-k" value="2"><span>2명 이상</span></label>
+              </div>
+              <p class="help">연 소득금액 100만원 이하이고 다른 가족이 기본공제를 받지 않는 자녀만 해당돼요. 공제 한도가 늘어납니다.</p>
+              <details class="inline-more">
+                <summary>자세히 <span aria-hidden="true">ⓘ</span></summary>
+                <p class="help">직계비속(손자녀·입양자·위탁아동 포함)으로 ① 연 소득금액 100만원 이하(근로소득만 있으면 총급여 500만원 이하) ② 20세 이하(장애인은 나이 무관) ③ 다른 사람의 기본공제를 받지 않을 것 — 셋 다 충족해야 해요. 총급여 7천만원 이하면 1명 +50만원·2명 이상 +100만원, 초과면 1명 +25만원·2명 이상 +50만원 한도가 늘어납니다.</p>
+              </details>
+            </fieldset>
+          </div>
+        </details>
+
+        <p class="culture-note">문화비(도서·공연·영화·체육시설)는 실제 결제수단 칸(신용/체크)에 포함해 입력하세요. 총급여 7천만원 이하인 경우 신용카드로 결제한 문화비는 실제보다 공제가 적게 계산될 수 있습니다.</p>
+
+        <p id="err-summary" class="err-summary" role="alert" hidden>빨간 칸을 확인해 주세요.</p>
+        <button type="submit" id="calc-btn" class="btn btn-primary btn-block">계산하기</button>
+      </form>
+
+      <template id="bridge-tpl">
+        <section class="bridge" aria-labelledby="bridge-title">
+          <p class="bridge-title" id="bridge-title">올해는 두 달 남았지만,<br>내년엔 1월부터 자동으로 관리하세요</p>
+          <p class="bridge-line"></p>
+          <p class="bridge-product">2027 가계부 + 카드공제 트래커 (구글 시트)</p>
+          <ul class="checks">
+            <li>결제수단별 누적과 25% 문턱 진행률 자동 계산</li>
+            <li>지금 공제 추정액과 한도까지 남은 금액</li>
+            <li>정부 개정안 시나리오(미확정) 토글 포함</li>
+          </ul>
+          <div class="buy">
+            <a class="btn btn-primary btn-block" data-cta="calc_cta" href="#sheet"><span class="btn-label">Gumroad에서 구매하기 · $6.99</span></a>
+            <!-- @include buy-note -->
+          </div>
+          <a class="text-link" href="#sheet">시트 구성 자세히 보기 ↓</a>
+        </section>
+      </template>
+      <div id="result-slot"></div>
+
+      <section id="sheet" class="sheet" aria-labelledby="sheet-title">
+        <span class="pill">유료 · 구글 시트</span>
+        <h2 id="sheet-title">2027 가계부 + 카드공제 트래커</h2>
+        <p class="sub">가계부만 쓰면 결제수단별 누적, 25% 문턱 진행률, 예상 카드 소득공제가 자동으로 계산됩니다.</p>
+        <!-- 스크린샷 3장(2027공제 / 2027가계부 / 설정 탭)은 실제 구글 시트 캡처 후 추가한다. 목업·가짜 숫자 합성 금지(design.md 3-2). -->
+
+        <h3>들어 있는 것</h3>
+        <ol class="contents">
+          <li><strong>① 2026년 11~12월 마무리 탭</strong><span>이 계산기와 같은 계산 + 문화비 칸</span></li>
+          <li><strong>② 2027 12개월 가계부</strong><span>월별 수입·지출, 결제수단별 월·연 누적, 25% 문턱 진행률</span></li>
+          <li><strong>③ 2027 공제 탭</strong><span>지금까지 쓴 금액 기준 공제 추정과 문턱·한도 잔여액. 기본은 현행 규칙이고, "정부 개정안 시나리오(국회 미통과)" 토글을 켰을 때만 개정안 값으로 계산합니다.</span></li>
+          <li><strong>④ 사용 설명 PDF</strong><span>내 구글 드라이브에 사본 만드는 링크, 입력 방법</span></li>
+          <li id="xlsx-item" hidden><strong>⑤ 엑셀(xlsx) 파일</strong></li>
+        </ol>
+
+        <h3>받는 방법</h3>
+        <ol class="steps">
+          <li>Gumroad에서 결제</li>
+          <li>이메일로 설명 PDF 도착</li>
+          <li>PDF의 '사본 만들기'를 누르면 내 구글 드라이브에 시트가 생겨요 (구글 계정 필요)</li>
+        </ol>
+
+        <div class="price-box">
+          <p class="price"><strong>$6.99</strong> <span>(약 1만원) · 1회 결제, 구독 아님</span></p>
+          <div class="buy">
+            <a class="btn btn-primary btn-block" data-cta="sheet_section" href="#sheet"><span class="btn-label">Gumroad에서 구매하기</span></a>
+            <!-- @include buy-note -->
+          </div>
+        </div>
+
+        <h3>업데이트 약속</h3>
+        <p>2027년 카드공제 개정안이 국회 의결·법 공포되면, 공포 후 14일 이내 Gumroad 파일을 업데이트하고 구매자 이메일로 안내합니다.</p>
+        <p>약속을 지키지 못하면 요청 시 전액 환불합니다. <a href="/refund">환불정책 보기 ›</a></p>
+
+        <h3 class="small-h">구매 전 확인</h3>
+        <ul class="precheck">
+          <li>구글 시트 파일이에요. 앱·웹 서비스가 아니에요.</li>
+          <li>참고용 계산, 세무 자문 아님, 최종 공제액은 홈택스/회사 연말정산 결과 기준</li>
+          <li>결제는 Gumroad가 처리해요. 카드 정보는 이 사이트에 전달되지 않아요.</li>
+          <li>구매자 본인용이에요. 사본 링크 공유는 삼가 주세요.</li>
+        </ul>
+      </section>
+
+      <section class="faq" aria-labelledby="faq-title">
+        <h2 id="faq-title">자주 묻는 질문</h2>
+        <!-- @include faq -->
+      </section>
+
+      <p class="basis">계산 기준: 국세청 신용카드 소득공제 안내, 조세특례제한법 제126조의2(시행 2026-09-18) · 2026-10-26 확인<br>
+        <a href="https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?mi=2469&amp;cntntsId=7794" target="_blank" rel="noopener">국세청 안내</a> ·
+        <a href="https://www.law.go.kr/LSW/lsInfoP.do?lsNm=%EC%A1%B0%EC%84%B8%ED%8A%B9%EB%A1%80%EC%A0%9C%ED%95%9C%EB%B2%95" target="_blank" rel="noopener">국가법령정보센터 조세특례제한법</a>
+      </p>
+    </main>
+    <!-- @include footer -->
+  </body>
+</html>

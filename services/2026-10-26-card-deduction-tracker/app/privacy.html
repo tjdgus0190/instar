@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <!-- @include head -->
+    <title>개인정보처리방침 — 카드공제 계산기 2026</title>
+    <meta name="description" content="입력한 금액은 수집·전송하지 않습니다. 분석 도구와 결제 정보 처리 방식을 안내합니다.">
+    <link rel="canonical" href="{{SITE_URL}}/privacy">
+    <meta property="og:url" content="{{SITE_URL}}/privacy">
+    <meta property="og:title" content="개인정보처리방침 — 카드공제 계산기 2026">
+    <meta property="og:description" content="입력한 금액은 수집·전송하지 않습니다. 분석 도구와 결제 정보 처리 방식을 안내합니다.">
+    <meta property="og:image" content="{{SITE_URL}}/og.png">
+    <script type="module" src="/src/page.ts"></script>
+  </head>
+  <body>
+    <!-- @include notice -->
+    <main class="wrap policy">
+      <h1>개인정보처리방침</h1>
+      <p>카드공제 계산기 2026(이하 "사이트")은 계산에 필요한 금액을 서버로 받지 않도록 만들어졌습니다. 이 방침은 사이트가 어떤 정보를 다루는지 설명합니다.</p>
+      <h2>입력한 금액은 수집·전송하지 않습니다</h2>
+      <p>총급여, 카드 사용액, 예상 지출, 자녀 수 등 계산기에 입력한 값은 이용자의 브라우저 안에서만 계산되며 서버나 분석 도구로 전송되지 않습니다. 브라우저 저장소(localStorage 등)나 주소(URL)에도 남기지 않으므로 페이지를 새로고침하면 사라집니다. [결과 복사]로 복사되는 문구에도 입력한 금액은 들어가지 않습니다.</p>
+      <p>유입 경로를 구분하기 위해 주소에 붙은 유입 표시(utm_source, utm_medium, utm_campaign)만 브라우저의 세션 저장소(sessionStorage)에 저장하며, 탭을 닫으면 삭제됩니다.</p>
+      <h2>분석 도구</h2>
+      <p>사이트는 방문 통계를 위해 Google Analytics 4 또는 Cloudflare Web Analytics를 사용할 수 있습니다. 이때 수집되는 정보는 방문한 페이지 주소, 유입 경로(UTM), 브라우저·기기 종류 같은 일반적인 접속 정보와, 다음 두 가지 이용 기록입니다.</p>
+      <ul>
+        <li>계산 완료 시 결과 유형(문턱 미달 / 한도 도달 / 차이 없음 / 체크카드 유리 4종 중 하나의 분류 이름) — 금액은 포함하지 않습니다.</li>
+        <li>구매 버튼을 누른 위치(계산 결과 아래 / 판매 섹션 / 2027 개정안 페이지)</li>
+      </ul>
+      <p>Google Analytics 4는 쿠키를 사용하며, 브라우저 설정에서 쿠키를 거부하거나 <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener">Google 애널리틱스 차단 부가기능</a>으로 수집을 막을 수 있습니다. Cloudflare Web Analytics는 쿠키를 사용하지 않습니다. 화면 글꼴(Pretendard)은 jsDelivr CDN에서 받아오며, 이 과정에서 일반적인 접속 정보(IP 주소 등)가 CDN에 전달될 수 있습니다.</p>
+      <h2>결제 정보</h2>
+      <p>유료 구글 시트의 결제는 판매 대행 서비스 Gumroad가 처리합니다. 카드 번호, 이메일, 이름 등 결제에 필요한 정보는 Gumroad가 수집·처리하며 사이트로 전달되지 않습니다. Gumroad의 개인정보 처리는 <a href="https://gumroad.com/privacy" target="_blank" rel="noopener">Gumroad 개인정보처리방침</a>을 따릅니다.</p>
+      <p>판매 집계를 위해 Gumroad가 보내는 판매 알림에서 판매 번호, 결제 금액, 결제 시각, 유입 경로(UTM), 테스트·환불 여부만 저장합니다. 구매자의 이메일, 이름, 국가, 카드 정보는 저장하지 않습니다. 이 기록은 매출·세무 기록 목적으로 보관하며 제3자에게 제공하지 않습니다.</p>
+      <h2>문의</h2>
+      <p>개인정보 관련 문의: {{CONTACT}}</p>
+      <p class="updated">최종 수정일 2026-10-26</p>
+    </main>
+    <!-- @include footer -->
+  </body>
+</html>

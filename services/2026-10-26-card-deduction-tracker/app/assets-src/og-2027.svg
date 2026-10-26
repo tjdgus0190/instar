@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#0E4A37"/>
+  <g transform="translate(900 70) rotate(-8)" opacity="0.18">
+    <rect width="240" height="150" rx="18" fill="#4CC79A"/>
+    <rect x="24" y="36" width="44" height="32" rx="6" fill="#0E4A37"/>
+  </g>
+  <rect x="64" y="64" width="300" height="52" rx="26" fill="#0B6E4F"/>
+  <text x="214" y="99" text-anchor="middle" font-family="Pretendard, sans-serif" font-size="28" font-weight="700" fill="#CFF3E2">정부 개정안 · 미확정</text>
+  <text x="64" y="250" font-family="Pretendard, sans-serif" font-size="76" font-weight="800" fill="#FFFFFF" letter-spacing="-1.5">2027 카드 소득공제</text>
+  <text x="64" y="345" font-family="Pretendard, sans-serif" font-size="76" font-weight="800" fill="#FFFFFF" letter-spacing="-1.5">무엇이 바뀔 수 있나</text>
+  <rect x="64" y="530" width="1072" height="1" fill="#2E6B57"/>
+  <text x="64" y="580" font-family="Pretendard, sans-serif" font-size="26" font-weight="400" fill="#CFE3DA">국회 미통과 · 2026-10-26 확인 기준</text>
+  <text x="1136" y="580" text-anchor="end" font-family="Pretendard, sans-serif" font-size="26" font-weight="700" fill="#FFFFFF">{{DOMAIN}}</text>
+</svg>

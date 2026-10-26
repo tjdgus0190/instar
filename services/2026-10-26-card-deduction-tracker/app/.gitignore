@@ -1,5 +1,6 @@
 # 빌드 출력 (서비스 폴더 규칙의 dist/ 설명 폴더와 겹치지 않게 build/ 사용)
 build/
+build-e2e/
 node_modules/
 .env
 .env.*
@@ -7,3 +8,4 @@ node_modules/
 .wrangler/
 # 시트·설명서 생성물 (바이너리, 커밋 금지 — 생성 방법은 README.md)
 sheet/out/
+__pycache__/
